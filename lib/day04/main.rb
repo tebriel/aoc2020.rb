@@ -62,7 +62,6 @@ class PassportPart2 < Passport
       valid_hair_color?,
       valid_eye_color?,
       valid_passport_id?
-
     ].all?
   end
 
@@ -93,8 +92,6 @@ class PassportPart2 < Passport
   end
 
   def valid_height?
-    return false if @fields['hgt'].nil?
-
     pattern = /^(?<height>\d+)(?<unit>in|cm)$/
     match = pattern.match(@fields['hgt'])
     return false if match.nil?
