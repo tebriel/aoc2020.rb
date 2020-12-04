@@ -30,7 +30,7 @@ class Passport
   private
 
   def required_fields_present?
-    ![
+    [
       @fields['byr'],
       @fields['iyr'],
       @fields['eyr'],
@@ -38,7 +38,7 @@ class Passport
       @fields['hcl'],
       @fields['ecl'],
       @fields['pid']
-    ].include? nil
+    ].all?
   end
 end
 
@@ -68,62 +68,51 @@ class PassportPart2 < Passport
   private
 
   def valid_birthday?
-    @fields['byr'] >= 1920 and @fields['byr'] <= 2002
+    (1920..2002).cover?(@fields['byr'])
   end
 
   def valid_issue_year?
-    @fields['iyr'] >= 2010 and @fields['iyr'] <= 2020
+    (2010..2020).cover?(@fields['iyr'])
   end
 
   def valid_expiration_year?
-    @fields['eyr'] >= 2020 and @fields['eyr'] <= 2030
+    (2020..2030).cover?(@fields['eyr'])
   end
 
   def valid_hair_color?
-    !/#[0-9a-f]{6,6}$/.match(@fields['hcl']).nil?
+    /#[0-9a-f]{6,6}$/.match?(@fields['hcl'])
   end
 
   def valid_eye_color?
-    'amb blu brn gry grn hzl oth'.split.include?(@fields['ecl'])
+    'amb blu brn gry grn hzl oth'.include?(@fields['ecl'])
   end
 
   def valid_passport_id?
-    !/^\d{9,9}$/.match(@fields['pid']).nil?
+    /^\d{9,9}$/.match?(@fields['pid'])
   end
 
   def valid_height?
     pattern = /^(?<height>\d+)(?<unit>in|cm)$/
     match = pattern.match(@fields['hgt'])
-    return false if match.nil?
+    return false unless match
 
     height = match['height'].to_i
-    return (height >= 59 and height <= 76) if match['unit'] == 'in'
-    return (height >= 150 and height <= 193) if match['unit'] == 'cm'
+    return (59..76).cover?(height) if match['unit'] == 'in'
+    return (150..193).cover?(height) if match['unit'] == 'cm'
   end
 end
 
-if $PROGRAM_NAME == __FILE__
-  passports = [PassportPart1.new]
+def count_valid(klass)
+  passports = [klass.new]
   File.foreach('inputs/day04.txt') do |line|
     line = line.chomp
-    passports.append(PassportPart1.new) if line.empty?
+    passports.append(klass.new) if line.empty?
     passports.last.add_line(line)
   end
-  valid_count = 0
-  passports.each do |p|
-    valid_count += 1 if p.valid?
-  end
-  puts("#{valid_count} valid part01 passports found")
+  passports.count(&:valid?)
+end
 
-  passports = [PassportPart2.new]
-  File.foreach('inputs/day04.txt') do |line|
-    line = line.chomp
-    passports.append(PassportPart2.new) if line.empty?
-    passports.last.add_line(line)
-  end
-  valid_count = 0
-  passports.each do |p|
-    valid_count += 1 if p.valid?
-  end
-  puts("#{valid_count} valid part02 passports found")
+if $PROGRAM_NAME == __FILE__
+  puts("#{count_valid(PassportPart1)} valid part01 passports found")
+  puts("#{count_valid(PassportPart2)} valid part02 passports found")
 end
