@@ -25,4 +25,19 @@ describe 'Day10' do
     assert_equal 22, day10.differences[1].count, day10.differences[1].to_s
     assert_equal 10, day10.differences[3].count, day10.differences[3].to_s
   end
+
+  it 'builds the shortest chain' do
+    day10 = Day10.new(@examples[0])
+    chain = day10.shortest_chain
+    variations = day10.possible_variations
+    assert_equal 19, chain[-1]
+    assert_equal 1, chain[0]
+    assert_equal 8, variations
+  end
+
+  it 'builds the shortest chain ex 2' do
+    day10 = Day10.new(@examples[1])
+    chain = day10.shortest_chain
+    assert_equal 19_208, day10.possible_variations
+  end
 end
